@@ -123,7 +123,19 @@
                                 <td>{{ doc.codigo }}</td>
                                 <td>{{ doc.cantidad }}</td>
                                 <td>{{ formatearMoneda(doc.valor_unitario) }}</td>
-                                <td>{{ doc.descripcion2 || 'Sin descripción' }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                        <span class="flex-grow-1">{{ doc.descripcion2 || 'Sin descripción' }}</span>
+                                        <button 
+                                            v-if="doc.descripcion2"
+                                            @click="copiarDescripcion(doc.descripcion2)"
+                                            class="btn-copiar"
+                                            title="Copiar descripción"
+                                        >
+                                            📋
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             <tr v-if="documentosHistoriaFiltrados.length === 0">
                                 <td colspan="4" class="text-center text-muted py-4">
@@ -262,6 +274,52 @@ const validarSoloNumeros = (event) => {
 // Función para marcar un documento como modificado
 const marcarComoModificado = (doc) => {
     doc.modificado = true;
+};
+
+// Función para copiar descripción al portapapeles
+const copiarDescripcion = async (texto) => {
+    try {
+        // Método moderno - Clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(texto);
+        } else {
+            // Método alternativo para navegadores antiguos o HTTP no seguro
+            const textArea = document.createElement('textarea');
+            textArea.value = texto;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                throw new Error('No se pudo copiar');
+            } finally {
+                textArea.remove();
+            }
+        }
+        
+        // Mostrar mensaje de éxito breve
+        msg.value = 'Descripción copiada al portapapeles';
+        modalTitle.value = '✓ Copiado';
+        modalInstance.value.show();
+        
+        // Cerrar automáticamente después de 1 segundo
+        setTimeout(() => {
+            const modalElement = document.getElementById('exitoModal');
+            const modalBootstrap = Modal.getInstance(modalElement);
+            if (modalBootstrap) {
+                modalBootstrap.hide();
+            }
+        }, 1000);
+    } catch (error) {
+        console.error('Error al copiar:', error);
+        errorMsg.value = 'No se pudo copiar la descripción';
+        modalErrorInstance.value.show();
+    }
 };
 
 // Función para guardar las descripciones modificadas
@@ -690,6 +748,27 @@ onMounted(async () => {
     border-color: #3498db;
     box-shadow: 0 0 0 0.15rem rgba(52, 152, 219, 0.25);
     outline: none;
+}
+
+/* Estilos para botón de copiar */
+.btn-copiar {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.btn-copiar:hover {
+    background: #e3f2fd;
+    transform: scale(1.1);
+}
+
+.btn-copiar:active {
+    transform: scale(0.95);
 }
 
 /* Botón de editar */
