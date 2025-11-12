@@ -63,14 +63,16 @@
                     <table class="tabla-registros">
                         <thead>
                             <tr>
-                                <th style="width: 15%;">Código</th>
-                                <th style="width: 15%;">Valor Unitario</th>
-                                <th style="width: 70%;">Descripción 2</th>
+                                <th style="width: 12%;">Código</th>
+                                <th style="width: 10%;">Cantidad</th>
+                                <th style="width: 13%;">Valor Unitario</th>
+                                <th style="width: 65%;">Descripción 2</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(doc, index) in documentosActualesFiltrados" :key="index">
                                 <td>{{ doc.codigo }}</td>
+                                <td>{{ doc.cantidad }}</td>
                                 <td>{{ formatearMoneda(doc.valor_unitario) }}</td>
                                 <td>
                                     <textarea 
@@ -83,7 +85,7 @@
                                 </td>
                             </tr>
                             <tr v-if="documentosActualesFiltrados.length === 0">
-                                <td colspan="3" class="text-center text-muted py-4">
+                                <td colspan="4" class="text-center text-muted py-4">
                                     No se encontraron documentos actuales
                                 </td>
                             </tr>
@@ -111,6 +113,7 @@
                         <thead>
                             <tr>
                                 <th>Código</th>
+                                <th>Cantidad</th>
                                 <th>Valor Unitario</th>
                                 <th>Descripción 2</th>
                             </tr>
@@ -118,11 +121,12 @@
                         <tbody>
                             <tr v-for="(doc, index) in documentosHistoriaFiltrados" :key="index">
                                 <td>{{ doc.codigo }}</td>
+                                <td>{{ doc.cantidad }}</td>
                                 <td>{{ formatearMoneda(doc.valor_unitario) }}</td>
                                 <td>{{ doc.descripcion2 || 'Sin descripción' }}</td>
                             </tr>
                             <tr v-if="documentosHistoriaFiltrados.length === 0">
-                                <td colspan="3" class="text-center text-muted py-4">
+                                <td colspan="4" class="text-center text-muted py-4">
                                     No se encontraron documentos históricos
                                 </td>
                             </tr>
@@ -176,131 +180,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal de Edición de Registro -->
-    <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true" data-bs-backdrop="static" ref="editarModal">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <div class="d-flex align-items-center w-100">
-                        <span class="me-2" style="font-size:2rem;line-height:1;">✏️</span>
-                        <h5 class="modal-title flex-grow-1" id="editarModalLabel">Editar Registro de Mercadeo</h5>
-                        <button type="button" class="btn-close btn-close-white" @click="cerrarModalEdicion" aria-label="Close"></button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <!-- Información de Solo Lectura -->
-                        <div class="seccion-readonly mb-4">
-                            <h6 class="seccion-titulo mb-3">📋 Información del Registro (Solo Lectura)</h6>
-                            <div class="row g-3">
-                                <div class="col-md-2">
-                                    <label class="form-label fw-bold">ID:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.id" readonly>
-                                </div>
-                                <div class="col-md-5">
-                                    <label class="form-label fw-bold">Evento:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.evento" readonly>
-                                </div>
-                                <div class="col-md-5">
-                                    <label class="form-label fw-bold">Nombre:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.nombre" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Celular:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.celular" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Correo:</label>
-                                    <input type="email" class="form-control" :value="registroEdicion.correo" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Ciudad:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.ciudad" readonly>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Empresa:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.empresa" readonly>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Cargo:</label>
-                                    <input type="text" class="form-control" :value="registroEdicion.cargo" readonly>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr class="my-4">
-
-                        <!-- Campos Editables -->
-                        <div class="seccion-editable">
-                            <h6 class="seccion-titulo mb-3">✏️ Campos Editables</h6>
-                            <div class="row g-3">
-                                <div class="col-md-12">
-                                    <label class="form-label fw-bold">Coordinación: <span class="text-danger">*</span></label>
-                                    <input 
-                                        type="text" 
-                                        class="form-control form-control-editable" 
-                                        v-model="registroEdicion.coordinacion"
-                                        placeholder="Ej: Zona Norte, Zona Sur, etc."
-                                    >
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Oportunidad:</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input 
-                                            type="number" 
-                                            class="form-control form-control-editable" 
-                                            v-model="registroEdicion.oportunidad"
-                                            step="0.01"
-                                            min="0"
-                                            placeholder="0.00"
-                                        >
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Monto Cotizado:</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input 
-                                            type="number" 
-                                            class="form-control form-control-editable" 
-                                            v-model="registroEdicion.monto_cotizado"
-                                            step="0.01"
-                                            min="0"
-                                            placeholder="0.00"
-                                        >
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Facturado:</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input 
-                                            type="number" 
-                                            class="form-control form-control-editable" 
-                                            v-model="registroEdicion.facturado"
-                                            step="0.01"
-                                            min="0"
-                                            placeholder="0.00"
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="cerrarModalEdicion">
-                        ❌ Cancelar
-                    </button>
-                    <button type="button" class="btn btn-primary" @click="guardarCambios">
-                        💾 Guardar Cambios
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
     
     <!-- Overlay de carga -->
     <div v-if="loading" class="loading-overlay">
@@ -313,28 +192,14 @@
 
 <script setup>
 
-import { ref, onMounted, watch, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { Modal } from 'bootstrap';
 import logotipo from '@/assets/logotipo.png';
 import apiUrl from "../../config.js";
 
-const cargo = ref(null);
-const lugarInspeccionId = ref(null);
-const lugaresInspeccion = ref([]);
-const responsables = ref([]);
-const fechaDesde = ref(null);
-const fechaHasta = ref(null);
-const fechaDesdeFormateada = ref(null);
-const fechaHastaFormateada = ref(null);
-
-const novedades = ref(null);
-const registros = ref([]);
-
 // Variables para el manejo de la búsqueda por número
 const numeroBusqueda = ref('');
-const tipoArchivo = ref('ventas'); // Tipo de archivo por defecto: 'ventas', 'compras', etc.
 
 // Variables para resultados de búsqueda
 const mostrarResultados = ref(false);
@@ -343,58 +208,15 @@ const documentosHistoria = ref([]);
 const filtroCodigoActuales = ref('');
 const filtroCodigoHistoria = ref('');
 
-// Variables para el manejo del archivo DMS
-const archivoSeleccionadoDMS = ref(null);
-const nombreArchivoDMS = ref('');
-const fileInputDMS = ref(null);
-
-// Variables para filtros y paginación
-const filtros = ref({
-    evento: '',
-    nombre: '',
-    empresa: '',
-    ciudad: '',
-    coordinacion: ''
-});
-const mostrarTabla = ref(false);
-const totalRegistros = ref(0);
-const totalPaginas = ref(0);
-const paginaActual = ref(1);
-const registrosPorPagina = ref(15);
-
 const msg = ref('');
 const errorMsg = ref('');
 const modalTitle = ref('');
 
 const modalInstance = ref(null);
 const modalErrorInstance = ref(null);
-const modalEditarInstance = ref(null);
-
-// Variables para edición de registro
-const registroEdicion = ref({
-    id: null,
-    evento: '',
-    nombre: '',
-    celular: '',
-    correo: '',
-    empresa: '',
-    ciudad: '',
-    cargo: '',
-    coordinacion: '',
-    oportunidad: 0,
-    monto_cotizado: 0,
-    facturado: 0
-});
 
 const loading = ref(false);
 const loading_msg = ref('');
-
-const total_paginas = ref(0);
-const total_registros = ref(0);
-const limit = ref(10);
-const position = ref(1);
-
-const router = useRouter();
 
 // Computed properties para filtrar las tablas
 const documentosActualesFiltrados = computed(() => {
@@ -450,6 +272,7 @@ const guardarDescripciones = async () => {
         .map(doc => ({
             codigo: doc.codigo,
             valor_unitario: doc.valor_unitario,
+            cantidad: doc.cantidad,
             descripcion2: doc.descripcion2_editada.trim()
         }));
 
@@ -563,33 +386,10 @@ const buscarPorNumero = async () => {
     }
 };
 
-// Función para manejar el cambio de archivo DMS
-const handleFileChangeDMS = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        if (!validarExtensionArchivo(file.name)) {
-            errorMsg.value = 'Por favor, seleccione un archivo válido (solo se permiten archivos .xls o .xlsx).';
-            modalErrorInstance.value.show();
-            // Limpiar el input
-            event.target.value = '';
-            archivoSeleccionadoDMS.value = null;
-            nombreArchivoDMS.value = '';
-            return;
-        }
-        archivoSeleccionadoDMS.value = file;
-        nombreArchivoDMS.value = file.name;
-    } else {
-        archivoSeleccionadoDMS.value = null;
-        nombreArchivoDMS.value = '';
-    }
-};
-
 // Código que se ejecuta al montar el componente
 onMounted(async () => {
     modalInstance.value = new Modal(exitoModal);
     modalErrorInstance.value = new Modal(errorModal);
-    modalEditarInstance.value = new Modal(editarModal);
-
 });
 
 </script>
