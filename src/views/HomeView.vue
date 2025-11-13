@@ -9,7 +9,7 @@
 
         <!-- Sección para buscar por número -->
         <div class="seccion-carga-archivo mt-4">
-            <div class="d-flex align-items-center gap-2">
+            <form @submit.prevent="buscarPorNumero" class="d-flex align-items-center gap-2">
                 <div class="input-numero-wrapper">
                     <label for="numeroBusqueda" class="form-label fw-bold mb-2">Número de Pedido:</label>
                     <input 
@@ -23,14 +23,13 @@
                     />
                 </div>
                 <button 
-                    type="button" 
+                    type="submit" 
                     class="btn btn-primary btn-buscar btn-sm"
-                    @click="buscarPorNumero"
                     :disabled="!numeroBusqueda"
                 >
                     <span>🔍</span> Buscar
                 </button>
-            </div>
+            </form>
         </div>
 
         <!-- Sección de Resultados -->
@@ -63,14 +62,16 @@
                     <table class="tabla-registros">
                         <thead>
                             <tr>
+                                <th style="width: 8%;">Seq</th>
                                 <th style="width: 12%;">Código</th>
                                 <th style="width: 10%;">Cantidad</th>
                                 <th style="width: 13%;">Valor Unitario</th>
-                                <th style="width: 65%;">Descripción 2</th>
+                                <th style="width: 57%;">Descripción 2</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(doc, index) in documentosActualesFiltrados" :key="index">
+                                <td>{{ doc.seq }}</td>
                                 <td>{{ doc.codigo }}</td>
                                 <td>{{ doc.cantidad }}</td>
                                 <td>{{ formatearMoneda(doc.valor_unitario) }}</td>
@@ -85,7 +86,7 @@
                                 </td>
                             </tr>
                             <tr v-if="documentosActualesFiltrados.length === 0">
-                                <td colspan="4" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     No se encontraron documentos actuales
                                 </td>
                             </tr>
@@ -112,6 +113,7 @@
                     <table class="tabla-registros">
                         <thead>
                             <tr>
+                                <th>Seq</th>
                                 <th>Código</th>
                                 <th>Cantidad</th>
                                 <th>Valor Unitario</th>
@@ -120,6 +122,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="(doc, index) in documentosHistoriaFiltrados" :key="index">
+                                <td>{{ doc.seq }}</td>
                                 <td>{{ doc.codigo }}</td>
                                 <td>{{ doc.cantidad }}</td>
                                 <td>{{ formatearMoneda(doc.valor_unitario) }}</td>
@@ -138,7 +141,7 @@
                                 </td>
                             </tr>
                             <tr v-if="documentosHistoriaFiltrados.length === 0">
-                                <td colspan="4" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     No se encontraron documentos históricos
                                 </td>
                             </tr>
@@ -152,7 +155,7 @@
 
 
     <!-- Modal de éxito -->
-    <div class="modal fade" id="exitoModal" tabindex="-1" aria-labelledby="exitoModalLabel" aria-hidden="true" data-bs-backdrop="static" ref="exitoModal">
+    <div class="modal fade" id="exitoModal" tabindex="-1" aria-labelledby="exitoModalLabel" data-bs-backdrop="static" ref="exitoModal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
@@ -173,7 +176,7 @@
     </div>
 
     <!-- Modal de error -->
-    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop="static" ref="errorModal">
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" data-bs-backdrop="static" ref="errorModal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
@@ -309,6 +312,10 @@ const copiarDescripcion = async (texto) => {
         
         // Cerrar automáticamente después de 1 segundo
         setTimeout(() => {
+            // Quitar el foco de cualquier elemento dentro del modal antes de cerrarlo
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
             const modalElement = document.getElementById('exitoModal');
             const modalBootstrap = Modal.getInstance(modalElement);
             if (modalBootstrap) {
@@ -328,6 +335,7 @@ const guardarDescripciones = async () => {
     const descripcionesModificadas = documentosActuales.value
         .filter(doc => doc.modificado && doc.descripcion2_editada && doc.descripcion2_editada.trim() !== '')
         .map(doc => ({
+            seq: doc.seq,
             codigo: doc.codigo,
             valor_unitario: doc.valor_unitario,
             cantidad: doc.cantidad,
